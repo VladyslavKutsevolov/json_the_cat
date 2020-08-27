@@ -1,19 +1,20 @@
 const request = require('request');
-const argv = process.argv[2];
 
-request(
-  `https://ai.thecatapi.com/v1/breeds/search?name=${argv}`,
-  (error, response, body) => {
-    if (error) console.log('error code', error.code);
-    try {
-      const data = JSON.parse(body)[0];
-      getCatDescription(data);
-    } catch (error) {
-      console.log('Opps, something went wrong: \n', error);
+const fetchBreedDescription = function (breedName, callback) {
+  request(
+    `https://api.thecatapi.com/v1/breeds/search?name=${breedName}`,
+    (error, response, body) => {
+      if (!error) {
+        const data = JSON.parse(body);
+        if (data[0]) {
+          const { description } = data[0];
+          callback(null, description);
+        }
+      } else {
+        callback(error, null);
+      }
     }
-  }
-);
-
-const getCatDescription = (catDescription) => {
-  console.log(catDescription.description);
+  );
 };
+
+module.exports = fetchBreedDescription;
